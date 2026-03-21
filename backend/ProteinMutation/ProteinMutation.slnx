@@ -1,8 +1,8 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="ProteinMutation.Api/ProteinMutation.Api.csproj" />
-    <Project Path="ProteinMutation.Application/ProteinMutation.Application.csproj" />
-    <Project Path="ProteinMutation.Domain/ProteinMutation.Domain.csproj" />
-    <Project Path="ProteinMutation.Infrastructure/ProteinMutation.Infrastructure.csproj" />
+    <Project Path="src/ProteinMutation.Api/ProteinMutation.Api.csproj" />
+    <Project Path="src/ProteinMutation.Application/ProteinMutation.Application.csproj" />
+    <Project Path="src/ProteinMutation.Domain/ProteinMutation.Domain.csproj" />
+    <Project Path="src/ProteinMutation.Infrastructure/ProteinMutation.Infrastructure.csproj" />
   </Folder>
 </Solution>
