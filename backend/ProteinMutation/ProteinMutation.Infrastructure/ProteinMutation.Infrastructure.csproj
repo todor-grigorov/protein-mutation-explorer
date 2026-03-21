@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ProteinMutation.Domain\ProteinMutation.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
