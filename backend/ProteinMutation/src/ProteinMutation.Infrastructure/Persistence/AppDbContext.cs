@@ -14,5 +14,17 @@ namespace ProteinMutation.Infrastructure.Persistence
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in ChangeTracker.Entries<ProteinVariant>()
+                .Where(e => e.State is EntityState.Added or EntityState.Modified))
+            {
+                entry.Property("ProteinId").CurrentValue =
+                    entry.Entity.VariantId.ProteinId;
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
+        }
     }
 }
