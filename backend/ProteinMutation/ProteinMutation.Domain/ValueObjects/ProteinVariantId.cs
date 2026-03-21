@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace ProteinMutation.Domain.ValueObjects
 {
-    public sealed record VariantId
+    public sealed record ProteinVariantId
     {
         private static readonly Regex MutationPattern =
             new(@"^([A-Z])(\d+)([A-Z])$", RegexOptions.Compiled);
@@ -14,7 +14,7 @@ namespace ProteinMutation.Domain.ValueObjects
         public char ToAminoAcid { get; }
         public string RawValue { get; }
 
-        private VariantId(string proteinId, char fromAminoAcid, int position, char toAminoAcid, string rawValue)
+        private ProteinVariantId(string proteinId, char fromAminoAcid, int position, char toAminoAcid, string rawValue)
         {
             ProteinId = proteinId;
             FromAminoAcid = fromAminoAcid;
@@ -26,7 +26,7 @@ namespace ProteinMutation.Domain.ValueObjects
         /// <summary>
         /// Parses a variant ID in the format "Q7Z4H8/A126C"
         /// </summary>
-        public static VariantId Parse(string value)
+        public static ProteinVariantId Parse(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new InvalidVariantFormatException(value, "Variant ID cannot be empty.");
@@ -48,7 +48,7 @@ namespace ProteinMutation.Domain.ValueObjects
                 throw new InvalidVariantFormatException(value,
                     $"Mutation '{mutation}' is not valid. Expected format: [A-Z][position][A-Z] (e.g. A126C).");
 
-            return new VariantId(
+            return new ProteinVariantId(
                 proteinId,
                 match.Groups[1].Value[0],
                 int.Parse(match.Groups[2].Value),
@@ -61,7 +61,7 @@ namespace ProteinMutation.Domain.ValueObjects
         /// Parses a variant in the alternative space-separated format "Q7Z4H8 A126C"
         /// and normalizes it to the canonical slash format.
         /// </summary>
-        public static VariantId ParseSpaceSeparated(string value)
+        public static ProteinVariantId ParseSpaceSeparated(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new InvalidVariantFormatException(value, "Variant ID cannot be empty.");
@@ -75,7 +75,7 @@ namespace ProteinMutation.Domain.ValueObjects
             return Parse($"{parts[0]}/{parts[1]}");
         }
 
-        public static bool TryParse(string value, out VariantId? result)
+        public static bool TryParse(string value, out ProteinVariantId? result)
         {
             try
             {
