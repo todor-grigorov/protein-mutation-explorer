@@ -90,5 +90,29 @@ namespace ProteinMutation.Domain.ValueObjects
         }
 
         public override string ToString() => RawValue;
+
+        //public override bool Equals(object? obj) => Equals(obj as ProteinVariantId);
+
+        public bool Equals(ProteinVariantId? other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            return string.Equals(ProteinId, other.ProteinId, StringComparison.OrdinalIgnoreCase)
+                   && FromAminoAcid == other.FromAminoAcid
+                   && Position == other.Position
+                   && ToAminoAcid == other.ToAminoAcid;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                ProteinId.ToUpperInvariant(),
+                FromAminoAcid,
+                Position,
+                ToAminoAcid);
+        }
     }
 }
