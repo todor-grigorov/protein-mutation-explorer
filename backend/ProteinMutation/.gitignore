@@ -1,0 +1,118 @@
+# ============================================================
+# .NET / ASP.NET Core
+# ============================================================
+
+## Build outputs
+bin/
+obj/
+out/
+
+## Publish output
+publish/
+**/publish/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+nuget.config
+packages/
+project.lock.json
+project.fragment.lock.json
+
+## Rider / JetBrains
+.idea/
+*.sln.iml
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+## Roslyn analyzers
+.roslynator/
+
+# ============================================================
+# ASP.NET Core specific
+# ============================================================
+
+## User secrets (never commit these)
+**/secrets.json
+**/appsettings.Local.json
+
+## App settings with sensitive data
+appsettings.Production.json
+
+## HTTPS dev certificate
+*.pfx
+
+# ============================================================
+# Entity Framework Core
+# ============================================================
+
+## SQLite database files (generated at runtime via seeding)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ============================================================
+# Test results
+# ============================================================
+
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+lcov.info
+
+# ============================================================
+# Docker
+# ============================================================
+
+## Don't ignore docker-compose files — those are intentional
+## But ignore any local override files with secrets
+docker-compose.override.yml
+.env
+.env.local
+.env.*.local
+
+# ============================================================
+# OS generated
+# ============================================================
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+## Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## Linux
+*~
+
+# ============================================================
+# Logs
+# ============================================================
+
+*.log
+logs/
