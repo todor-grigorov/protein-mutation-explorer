@@ -69,6 +69,16 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<IReadOnlyList<string>> GetAllProteinIdsAsync(
+             CancellationToken cancellationToken = default)
+        {
+            return await _context.ProteinVariants
+                .Select(v => EF.Property<string>(v, "ProteinId"))
+                .Distinct()
+                .OrderBy(id => id)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
         {
             return await _context.ProteinVariants.AnyAsync(cancellationToken);

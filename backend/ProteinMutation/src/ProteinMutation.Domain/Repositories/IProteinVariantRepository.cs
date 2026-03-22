@@ -25,6 +25,10 @@ namespace ProteinMutation.Domain.Repositories
             IEnumerable<ProteinVariantId> variantIds,
             CancellationToken cancellationToken = default);
 
+        // Get all distinct protein IDs in the dataset
+        Task<IReadOnlyList<string>> GetAllProteinIdsAsync(
+            CancellationToken cancellationToken = default);
+
         // Used by the seeder to check if DB is already populated
         Task<bool> AnyAsync(CancellationToken cancellationToken = default);
     }
