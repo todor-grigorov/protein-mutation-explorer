@@ -26,12 +26,12 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
             string proteinId,
             CancellationToken cancellationToken = default)
         {
-            var normalizedProteinId = proteinId.Trim().ToUpperInvariant();
+            var normalizedProteinId = proteinId.ToUpperInvariant();
 
             return await _context.ProteinVariants
                 .AsNoTracking()
-                .Where(x => x.VariantId.ProteinId == normalizedProteinId)
-                .OrderBy(x => x.VariantId.Position)
+                .Where(v => EF.Property<string>(v, "ProteinId") == normalizedProteinId)
+                .OrderBy(v => v.Id)
                 .ToListAsync(cancellationToken);
         }
 
