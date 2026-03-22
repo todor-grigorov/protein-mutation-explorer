@@ -7,7 +7,11 @@ namespace ProteinMutation.Domain.Entities
     {
         // Primary identity
         public int Id { get; private set; }
-        public ProteinVariantId VariantId { get; private set; } = null!;
+        public string RawVariantId { get; private set; } = string.Empty;
+
+        private ProteinVariantId? _variantId;
+        public ProteinVariantId VariantId =>
+            _variantId ??= ProteinVariantId.Parse(RawVariantId);
 
         // AlphaMissense scores
         public double AmPathogenicity { get; private set; }
@@ -51,7 +55,7 @@ namespace ProteinMutation.Domain.Entities
         {
             return new ProteinVariant
             {
-                VariantId = variantId,
+                RawVariantId = variantId.RawValue,
                 AmPathogenicity = amPathogenicity,
                 AmClass = amClass,
                 AmLabel = amLabel,

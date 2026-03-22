@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProteinMutation.Domain.Entities;
 using ProteinMutation.Domain.Enums;
-using ProteinMutation.Domain.ValueObjects;
 
 namespace ProteinMutation.Infrastructure.Persistence.Configurations
 {
@@ -17,20 +16,18 @@ namespace ProteinMutation.Infrastructure.Persistence.Configurations
             builder.Property(v => v.Id)
                 .ValueGeneratedOnAdd();
 
-            // ProteinVariantId value object — stored as a single string column
-            builder.Property(v => v.VariantId)
+            builder.Property(v => v.RawVariantId)
                 .HasColumnName("VariantId")
                 .HasMaxLength(50)
-                .IsRequired()
-                .HasConversion(
-                    v => v.RawValue,
-                    v => ProteinVariantId.Parse(v));
+                .IsRequired();
 
-            // Index for fast lookup and search
-            builder.HasIndex(v => v.VariantId)
+            builder.Ignore(v => v.VariantId);
+
+            // Index on RawVariantId — not VariantId
+            builder.HasIndex(v => v.RawVariantId)
                 .IsUnique();
 
-            // Computed column for protein ID lookups — avoids parsing in SQL
+            // Shadow property for protein ID lookups
             builder.Property<string>("ProteinId")
                 .HasColumnName("ProteinId")
                 .HasMaxLength(20)

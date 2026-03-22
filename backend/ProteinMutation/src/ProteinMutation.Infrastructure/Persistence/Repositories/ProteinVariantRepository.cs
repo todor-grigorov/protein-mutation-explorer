@@ -19,7 +19,10 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
             CancellationToken cancellationToken = default)
         {
             return await _context.ProteinVariants
-                .FirstOrDefaultAsync(v => v.VariantId == variantId, cancellationToken);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    v => v.RawVariantId == variantId.RawValue,
+                    cancellationToken);
         }
 
         public async Task<IReadOnlyList<ProteinVariant>> GetByProteinIdAsync(
@@ -39,12 +42,11 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
             string query,
             CancellationToken cancellationToken = default)
         {
-            var normalizedQuery = query.Trim().ToUpperInvariant();
+            var normalizedQuery = query.Trim();
 
             return await _context.ProteinVariants
-                .Where(v => EF.Functions.Like(
-                    EF.Property<string>(v, "VariantId"),
-                    $"%{normalizedQuery}%"))
+                .AsNoTracking()
+                .Where(v => EF.Functions.Like(v.RawVariantId, $"%{normalizedQuery}%"))
                 .Take(100)
                 .ToListAsync(cancellationToken);
         }
@@ -54,9 +56,9 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
             CancellationToken cancellationToken = default)
         {
             var normalizedIds = variantIds
-            .Select(x => x.RawValue)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+                .Select(x => x.RawValue)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
             if (normalizedIds.Count == 0)
             {
@@ -65,7 +67,7 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
 
             return await _context.ProteinVariants
                 .AsNoTracking()
-                .Where(x => normalizedIds.Contains(x.VariantId.RawValue))
+                .Where(x => normalizedIds.Contains(x.RawVariantId))  // ← fixed
                 .ToListAsync(cancellationToken);
         }
 
