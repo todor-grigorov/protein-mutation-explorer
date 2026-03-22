@@ -18,6 +18,7 @@ builder.Services.ConfigureRepository();
 builder.Services.ConfigureDatabaseSeeding();
 builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.ConfigureServiceManager();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

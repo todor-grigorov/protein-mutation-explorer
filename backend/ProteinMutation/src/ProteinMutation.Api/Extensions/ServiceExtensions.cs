@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProteinMutation.Application.Abstractions.Services;
+using ProteinMutation.Application.Services;
 using ProteinMutation.Domain.Repositories;
 using ProteinMutation.Infrastructure.Options;
 using ProteinMutation.Infrastructure.Persistence;
@@ -40,5 +42,8 @@ namespace ProteinMutation.Api.Extensions
             services.AddScoped<TsvVariantImporter>();
             services.AddScoped<DatabaseInitializer>();
         }
+
+        public static void ConfigureServiceManager(this IServiceCollection services) =>
+            services.AddScoped<IServiceManager, ServiceManager>();
     }
 }
