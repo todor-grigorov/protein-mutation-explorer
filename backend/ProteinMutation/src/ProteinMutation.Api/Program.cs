@@ -1,3 +1,4 @@
+using ProteinMutation.Api;
 using ProteinMutation.Api.Extensions;
 using ProteinMutation.Infrastructure.Options;
 using ProteinMutation.Infrastructure.Persistence.Seed;
@@ -15,6 +16,7 @@ builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.ConfigureRepository();
 builder.Services.ConfigureDatabaseSeeding();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
