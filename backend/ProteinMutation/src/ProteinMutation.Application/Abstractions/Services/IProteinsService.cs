@@ -1,8 +1,10 @@
-﻿namespace ProteinMutation.Application.Abstractions.Services
+﻿using ProteinMutation.Application.DataTransferObjects;
+
+namespace ProteinMutation.Application.Abstractions.Services
 {
     public interface IProteinsService
     {
-        Task<IReadOnlyList<string>> GetAllProteinIdsAsync(
+        Task<IReadOnlyList<ProteinDto>> GetAllProteinIdsAsync(
             CancellationToken cancellationToken = default);
     }
 }
