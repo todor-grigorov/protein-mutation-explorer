@@ -58,23 +58,57 @@ namespace ProteinMutation.Application.Services
             return _mapper.Map<IReadOnlyList<ProteinVariantDto>>(variants);
         }
 
-        public async Task<IReadOnlyList<ProteinVariantDto>> GetByVariantIdsAsync(
-            IEnumerable<string> variantIds,
-            CancellationToken cancellationToken = default)
+        public async Task<BatchSubmissionResult> ProcessBatchAsync(
+        IEnumerable<string> rawInputLines,
+        CancellationToken cancellationToken = default)
         {
-            var idList = variantIds.ToList();
-
-            if (idList.Count == 0)
-                throw new InvalidVariantFormatException(
-                    string.Empty, "At least one variant ID must be provided.");
-
-            var parsedIds = idList
-                .Select(ProteinVariantId.Parse)
+            var lines = rawInputLines
+                .Select(l => l.Trim())
+                .Where(l => !string.IsNullOrWhiteSpace(l))
                 .ToList();
 
-            var variants = await _repository.GetByVariantIdsAsync(parsedIds, cancellationToken);
+            if (lines.Count == 0)
+                throw new InvalidVariantFormatException(
+                    string.Empty, "At least one variant must be provided.");
 
-            return _mapper.Map<IReadOnlyList<ProteinVariantDto>>(variants);
+            var validIds = new List<ProteinVariantId>();
+            var invalid = new List<InvalidVariantEntry>();
+
+            // Step 1 — parse and validate each line
+            foreach (var line in lines)
+            {
+                // Normalize space-separated format to slash format
+                var normalized = line.Contains('/')
+                    ? line
+                    : line.Replace(' ', '/');
+
+                if (ProteinVariantId.TryParse(normalized, out var id))
+                    validIds.Add(id!);
+                else
+                    invalid.Add(new InvalidVariantEntry(
+                        Input: line,
+                        Reason: "Invalid format. Expected: Q7Z4H8/A126C or Q7Z4H8 A126C"));
+            }
+
+            // Step 2 — bulk lookup valid IDs in one DB round trip
+            var found = validIds.Count > 0
+                ? await _repository.GetByVariantIdsAsync(validIds, cancellationToken)
+                : [];
+
+            // Step 3 — determine which valid IDs had no match in the DB
+            var foundRawIds = found
+                .Select(v => v.VariantId.RawValue)
+                .ToHashSet();
+
+            var notFound = validIds
+                .Where(id => !foundRawIds.Contains(id.RawValue))
+                .Select(id => id.RawValue)
+                .ToList();
+
+            // Step 4 — map to DTOs
+            var foundDtos = _mapper.Map<IReadOnlyList<ProteinVariantDto>>(found);
+
+            return new BatchSubmissionResult(foundDtos, notFound, invalid);
         }
     }
 }
