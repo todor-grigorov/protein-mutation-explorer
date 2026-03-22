@@ -19,19 +19,22 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
             CancellationToken cancellationToken = default)
         {
             return await _context.ProteinVariants
-                .FirstOrDefaultAsync(v => v.VariantId == variantId, cancellationToken);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    v => v.RawVariantId == variantId.RawValue,
+                    cancellationToken);
         }
 
         public async Task<IReadOnlyList<ProteinVariant>> GetByProteinIdAsync(
             string proteinId,
             CancellationToken cancellationToken = default)
         {
-            var normalizedProteinId = proteinId.Trim().ToUpperInvariant();
+            var normalizedProteinId = proteinId.ToUpperInvariant();
 
             return await _context.ProteinVariants
                 .AsNoTracking()
-                .Where(x => x.VariantId.ProteinId == normalizedProteinId)
-                .OrderBy(x => x.VariantId.Position)
+                .Where(v => EF.Property<string>(v, "ProteinId") == normalizedProteinId)
+                .OrderBy(v => v.Id)
                 .ToListAsync(cancellationToken);
         }
 
@@ -39,12 +42,11 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
             string query,
             CancellationToken cancellationToken = default)
         {
-            var normalizedQuery = query.Trim().ToUpperInvariant();
+            var normalizedQuery = query.Trim();
 
             return await _context.ProteinVariants
-                .Where(v => EF.Functions.Like(
-                    EF.Property<string>(v, "VariantId"),
-                    $"%{normalizedQuery}%"))
+                .AsNoTracking()
+                .Where(v => EF.Functions.Like(v.RawVariantId, $"%{normalizedQuery}%"))
                 .Take(100)
                 .ToListAsync(cancellationToken);
         }
@@ -54,9 +56,9 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
             CancellationToken cancellationToken = default)
         {
             var normalizedIds = variantIds
-            .Select(x => x.RawValue)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+                .Select(x => x.RawValue)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
             if (normalizedIds.Count == 0)
             {
@@ -65,7 +67,7 @@ namespace ProteinMutation.Infrastructure.Persistence.Repositories
 
             return await _context.ProteinVariants
                 .AsNoTracking()
-                .Where(x => normalizedIds.Contains(x.VariantId.RawValue))
+                .Where(x => normalizedIds.Contains(x.RawVariantId))  // ← fixed
                 .ToListAsync(cancellationToken);
         }
 

@@ -18,6 +18,7 @@ builder.Services.ConfigureRepository();
 builder.Services.ConfigureDatabaseSeeding();
 builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 builder.Services.ConfigureServiceManager();
 
 builder.Services.AddControllers();
@@ -37,6 +38,10 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
 }
 
 app.UseHttpsRedirection();
