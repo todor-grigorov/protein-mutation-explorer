@@ -16,6 +16,7 @@ builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.ConfigureRepository();
 builder.Services.ConfigureDatabaseSeeding();
+builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers();
