@@ -1,9 +1,15 @@
 using ProteinMutation.Api.Extensions;
+using ProteinMutation.Infrastructure.Options;
 using ProteinMutation.Infrastructure.Persistence.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var dbOptions = builder.Configuration
+    .GetSection(DatabaseOptions.SectionName)
+    .Get<DatabaseOptions>()!;
+
+builder.Services.AddSingleton(dbOptions);
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureSqlContext(builder.Configuration);
