@@ -11,16 +11,24 @@ namespace ProteinMutation.Api
         {
             // Domain → Application DTO
             CreateMap<ProteinVariant, ProteinVariantDto>()
-                .ForMember(dest => dest.VariantId,
-                    opt => opt.MapFrom(src => src.VariantId.RawValue))
-                .ForMember(dest => dest.ProteinId,
-                    opt => opt.MapFrom(src => src.VariantId.ProteinId))
-                .ForMember(dest => dest.FromAminoAcid,
-                    opt => opt.MapFrom(src => src.VariantId.FromAminoAcid))
-                .ForMember(dest => dest.Position,
-                    opt => opt.MapFrom(src => src.VariantId.Position))
-                .ForMember(dest => dest.ToAminoAcid,
-                    opt => opt.MapFrom(src => src.VariantId.ToAminoAcid));
+                .ConstructUsing((src, ctx) => new ProteinVariantDto(
+                    src.VariantId.RawValue,
+                    src.VariantId.ProteinId,
+                    src.VariantId.FromAminoAcid,
+                    src.VariantId.Position,
+                    src.VariantId.ToAminoAcid,
+                    src.AmPathogenicity,
+                    src.AmClass.ToString(),
+                    src.AmLabel,
+                    src.Esm1bLlr,
+                    src.Esm1bIsPathogenic.ToString(),
+                    src.PredDdg,
+                    src.PredDdgLabel,
+                    src.InterfacePdockq,
+                    src.InterfaceLabel,
+                    src.PocketLabel,
+                    src.MechanisticLabel.ToString()
+                ));
 
             // Application DTO → API Response
             CreateMap<ProteinVariantDto, ProteinVariantResponse>()
