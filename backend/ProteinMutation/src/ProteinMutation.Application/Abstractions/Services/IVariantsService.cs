@@ -16,8 +16,8 @@ namespace ProteinMutation.Application.Abstractions.Services
             string query,
             CancellationToken cancellationToken = default);
 
-        Task<IReadOnlyList<ProteinVariantDto>> GetByVariantIdsAsync(
-            IEnumerable<string> variantIds,
+        Task<BatchSubmissionResult> ProcessBatchAsync(
+            IEnumerable<string> rawInputLines,
             CancellationToken cancellationToken = default);
     }
 }
