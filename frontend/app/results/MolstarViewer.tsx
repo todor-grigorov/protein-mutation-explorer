@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { getStructureUrl } from '@/lib/api/structures'
+import type { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context.js'
 
 interface MolstarViewerProps {
   proteinId: string
@@ -10,7 +11,7 @@ interface MolstarViewerProps {
 
 export function MolstarViewer({ proteinId, highlightPosition }: MolstarViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const pluginRef = useRef<any>(null)
+  const pluginRef = useRef<PluginUIContext | null>(null)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -124,10 +125,10 @@ export function MolstarViewer({ proteinId, highlightPosition }: MolstarViewerPro
   )
 }
 
-async function highlightResidue(plugin: any, position: number) {
+async function highlightResidue(plugin: PluginUIContext, position: number) {
   const { Script } = await import('molstar/lib/mol-script/script')
   const { StructureSelection } = await import('molstar/lib/mol-model/structure')
-  const { setSubtreeVisibility } = await import('molstar/lib/mol-plugin/behavior/static/state')
+  // const { setSubtreeVisibility } = await import('molstar/lib/mol-plugin/behavior/static/state')
 
   try {
     const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data
