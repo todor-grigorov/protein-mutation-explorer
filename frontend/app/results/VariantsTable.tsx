@@ -137,7 +137,7 @@ export function VariantsTable({
   })
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full flex-col gap-4">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
@@ -159,8 +159,8 @@ export function VariantsTable({
       </div>
 
       {/* Table */}
-      <div className="border-border-dark overflow-hidden rounded-lg border">
-        <div className="overflow-x-auto">
+      <div className="border-border-dark h-full overflow-hidden rounded-lg border">
+        <div className="h-full overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
