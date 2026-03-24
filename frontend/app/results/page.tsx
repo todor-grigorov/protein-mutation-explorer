@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import type { BatchSubmissionResponse, ProteinVariantResponse } from '@/types/api'
 
-// Mol* must be loaded client-side only — no SSR
 const MolstarViewer = dynamic(
   () => import('@/app/results/MolstarViewer').then((mod) => mod.MolstarViewer),
   {
@@ -24,27 +23,33 @@ const MolstarViewer = dynamic(
   }
 )
 
+// Initialize from sessionStorage outside component
+// to avoid setState in effect
+function getInitialResults(): BatchSubmissionResponse | null {
+  if (typeof window === 'undefined') return null
+  const cached = sessionStorage.getItem('batchResults')
+  if (!cached) return null
+  try {
+    return JSON.parse(cached) as BatchSubmissionResponse
+  } catch {
+    return null
+  }
+}
+
 export default function ResultsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { mutate, isPending } = useVariantsBatch()
 
-  const [results, setResults] = useState<BatchSubmissionResponse | null>(null)
-  const [selectedVariant, setSelectedVariant] = useState<ProteinVariantResponse | null>(null)
+  const [results, setResults] = useState<BatchSubmissionResponse | null>(getInitialResults)
+  const [selectedVariant, setSelectedVariant] = useState<ProteinVariantResponse | null>(
+    () => getInitialResults()?.found[0] ?? null
+  )
 
   useEffect(() => {
-    // Try sessionStorage first — avoids re-fetching on direct load
-    const cached = sessionStorage.getItem('batchResults')
-    if (cached) {
-      const parsed: BatchSubmissionResponse = JSON.parse(cached)
-      setResults(parsed)
-      if (parsed.found.length > 0) {
-        setSelectedVariant(parsed.found[0])
-      }
-      return
-    }
+    // Only fetch if we don't have cached results
+    if (results) return
 
-    // Fallback — re-fetch from URL params
     const variantsParam = searchParams.get('variants')
     if (!variantsParam) {
       router.push('/')
@@ -74,7 +79,6 @@ export default function ResultsPage() {
 
   return (
     <div className="mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8">
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-3xl leading-tight font-black tracking-[-0.033em] text-white lg:text-4xl">
@@ -98,7 +102,6 @@ export default function ResultsPage() {
         </Button>
       </div>
 
-      {/* Warnings */}
       <BatchSummaryBanner notFound={results.notFound} invalid={results.invalid} />
 
       {results.found.length === 0 ? (
@@ -113,7 +116,6 @@ export default function ResultsPage() {
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-6 lg:flex-row">
-          {/* Left panel — table */}
           <div className="flex w-full flex-col gap-4 lg:w-1/2">
             <VariantsTable
               variants={results.found}
@@ -121,8 +123,6 @@ export default function ResultsPage() {
               onVariantSelect={setSelectedVariant}
             />
           </div>
-
-          {/* Right panel — viewer + protein info */}
           <div className="flex w-full flex-col gap-4 self-start lg:sticky lg:top-6 lg:w-1/2">
             {selectedVariant && (
               <>
