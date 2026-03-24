@@ -22,7 +22,7 @@ export function ExampleCollapsible() {
       <p className="text-text-muted pb-2 font-mono text-sm leading-normal font-normal">
         Q7Z4H8 A126C
         <br />
-        P12235 G100A
+        P12235 L100A
         <br />
         Q8IUR5 A100C
       </p>

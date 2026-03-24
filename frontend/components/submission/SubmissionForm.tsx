@@ -9,6 +9,7 @@ import { useVariantsBatch } from '@/hooks/useVariantsBatch'
 import { submissionFormSchema, type SubmissionFormValues } from '@/dto/SubmissionFormDto'
 import { useState } from 'react'
 import { Input } from '../ui/input'
+import { normalizeVariantSyntax, splitVariantLines } from '@/lib/utils'
 
 const modeStyles = {
   active:
@@ -31,18 +32,15 @@ export function SubmissionForm() {
   })
 
   const onSubmit = (values: SubmissionFormValues) => {
-    const lines = values.variants
-      .trim()
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0)
+    const lines = splitVariantLines(values.variants)
+    const submittedVariants = mode === 'single' ? lines.slice(0, 1) : lines
 
-    mutate(lines, {
+    const normalizedVariants = submittedVariants.map(normalizeVariantSyntax)
+
+    mutate(normalizedVariants, {
       onSuccess: (data) => {
-        // Store results in sessionStorage — retrieved on results page
         sessionStorage.setItem('batchResults', JSON.stringify(data))
-        // Pass raw input lines in URL for shareability
-        const encoded = encodeURIComponent(lines.join(','))
+        const encoded = encodeURIComponent(normalizedVariants.join(','))
         router.push(`/results?variants=${encoded}`)
       },
       onError: (error) => {
@@ -79,7 +77,7 @@ export function SubmissionForm() {
           </label>
           <Textarea
             {...register('variants')}
-            placeholder={`Q7Z4H8 A126C\nP12235 G100A`}
+            placeholder={`Q7Z4H8 A126C\nP12235 L100A`}
             className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary focus:ring-primary/50 min-h-36 resize-y font-mono text-white"
           />
           {errors.variants && (
