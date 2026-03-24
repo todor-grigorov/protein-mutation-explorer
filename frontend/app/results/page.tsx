@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useVariantsBatch } from '@/hooks/useVariantsBatch'
@@ -36,7 +36,7 @@ function getInitialResults(): BatchSubmissionResponse | null {
   }
 }
 
-export default function ResultsPage() {
+function ResultsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { mutate, isPending } = useVariantsBatch()
@@ -138,5 +138,19 @@ export default function ResultsPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function ResultsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <p className="text-text-muted animate-pulse">Loading results...</p>
+        </div>
+      }
+    >
+      <ResultsContent />
+    </Suspense>
   )
 }
