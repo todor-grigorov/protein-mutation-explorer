@@ -7,10 +7,20 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useVariantsBatch } from '@/hooks/useVariantsBatch'
 import { submissionFormSchema, type SubmissionFormValues } from '@/dto/SubmissionFormDto'
+import { useState } from 'react'
+import { Input } from '../ui/input'
+
+const modeStyles = {
+  active:
+    'bg-background-dark flex h-full grow items-center justify-center rounded-lg px-2 text-sm font-medium text-white shadow-sm cursor-pointer',
+  inactive:
+    'text-text-muted flex h-full grow items-center justify-center px-2 text-sm font-medium cursor-pointer',
+}
 
 export function SubmissionForm() {
   const router = useRouter()
   const { mutate, isPending } = useVariantsBatch()
+  const [mode, setMode] = useState<'bulk' | 'single'>('bulk')
 
   const {
     register,
@@ -46,27 +56,51 @@ export function SubmissionForm() {
       {/* Input mode toggle */}
       <div className="flex justify-center px-0 py-3">
         <div className="bg-surface-hover flex h-10 w-full max-w-sm items-center justify-center rounded-lg p-1">
-          <span className="bg-background-dark flex h-full grow items-center justify-center rounded-lg px-2 text-sm font-medium text-white shadow-sm">
+          <span
+            className={mode === 'bulk' ? modeStyles.active : modeStyles.inactive}
+            onClick={() => setMode('bulk')}
+          >
             Bulk Input
           </span>
-          <span className="text-text-muted flex h-full grow items-center justify-center px-2 text-sm font-medium">
+          <span
+            className={mode === 'single' ? modeStyles.active : modeStyles.inactive}
+            onClick={() => setMode('single')}
+          >
             Single Entry
           </span>
         </div>
       </div>
 
       {/* Textarea */}
-      <div className="flex flex-col gap-2">
-        <label className="text-base leading-normal font-medium text-white">
-          Paste your list of mutations here (one per line)
-        </label>
-        <Textarea
-          {...register('variants')}
-          placeholder={`Q7Z4H8 A126C\nP12235 G100A`}
-          className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary focus:ring-primary/50 min-h-36 resize-y font-mono text-white"
-        />
-        {errors.variants && <p className="mt-1 text-sm text-red-500">{errors.variants.message}</p>}
-      </div>
+      {mode === 'bulk' ? (
+        <div className="flex flex-col gap-2">
+          <label className="text-base leading-normal font-medium text-white">
+            Paste your list of mutations here (one per line)
+          </label>
+          <Textarea
+            {...register('variants')}
+            placeholder={`Q7Z4H8 A126C\nP12235 G100A`}
+            className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary focus:ring-primary/50 min-h-36 resize-y font-mono text-white"
+          />
+          {errors.variants && (
+            <p className="mt-1 text-sm text-red-500">{errors.variants.message}</p>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <label className="text-base leading-normal font-medium text-white">
+            Paste your single mutation here
+          </label>
+          <Input
+            {...register('variants')}
+            placeholder={`Q7Z4H8 A126C`}
+            className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary focus:ring-primary/50 resize-y font-mono text-white"
+          />
+          {errors.variants && (
+            <p className="mt-1 text-sm text-red-500">{errors.variants.message}</p>
+          )}
+        </div>
+      )}
 
       {/* Submit */}
       <div className="flex justify-start">
