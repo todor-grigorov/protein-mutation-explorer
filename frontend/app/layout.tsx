@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk } from 'next/font/google'
+import 'molstar/build/viewer/molstar.css'
 import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
