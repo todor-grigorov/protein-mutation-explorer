@@ -128,6 +128,7 @@ export default function ResultsPage() {
               <>
                 <ProteinInfoPanel proteinId={selectedVariant.proteinId} />
                 <MolstarViewer
+                  key={selectedVariant.proteinId}
                   proteinId={selectedVariant.proteinId}
                   highlightPosition={selectedVariant.position}
                 />
