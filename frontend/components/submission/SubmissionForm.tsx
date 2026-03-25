@@ -10,6 +10,12 @@ import { submissionFormSchema, type SubmissionFormValues } from '@/dto/Submissio
 import { useState } from 'react'
 import { Input } from '../ui/input'
 import { normalizeVariantSyntax, splitVariantLines } from '@/lib/utils'
+import { useSearchHistory } from '@/hooks/useSearchHistory'
+import dynamic from 'next/dynamic'
+
+const RecentSearches = dynamic(() => import('./RecentSearches').then((mod) => mod.RecentSearches), {
+  ssr: false,
+})
 
 const modeStyles = {
   active:
@@ -21,11 +27,13 @@ const modeStyles = {
 export function SubmissionForm() {
   const router = useRouter()
   const { mutate, isPending } = useVariantsBatch()
+  const { history, addEntry, removeEntry, clearHistory } = useSearchHistory()
   const [mode, setMode] = useState<'bulk' | 'single'>('bulk')
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<SubmissionFormValues>({
     resolver: zodResolver(submissionFormSchema),
@@ -39,6 +47,8 @@ export function SubmissionForm() {
 
     mutate(normalizedVariants, {
       onSuccess: (data) => {
+        // Save to history
+        addEntry(lines, data.found.length)
         sessionStorage.setItem('batchResults', JSON.stringify(data))
         const encoded = encodeURIComponent(normalizedVariants.join(','))
         router.push(`/results?variants=${encoded}`)
@@ -49,67 +59,82 @@ export function SubmissionForm() {
     })
   }
 
+  const handleReuse = (variants: string[]) => {
+    const variantsObj = { variants: variants.join('\n') }
+    setValue('variants', variants.join('\n'))
+    onSubmit(variantsObj) // Type assertion since onSubmit expects the form values shape
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      {/* Input mode toggle */}
-      <div className="flex justify-center px-0 py-3">
-        <div className="bg-surface-hover flex h-10 w-full max-w-sm items-center justify-center rounded-lg p-1">
-          <span
-            className={mode === 'bulk' ? modeStyles.active : modeStyles.inactive}
-            onClick={() => setMode('bulk')}
-          >
-            Bulk Input
-          </span>
-          <span
-            className={mode === 'single' ? modeStyles.active : modeStyles.inactive}
-            onClick={() => setMode('single')}
-          >
-            Single Entry
-          </span>
+    <div className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        {/* Input mode toggle */}
+        <div className="flex justify-center px-0 py-3">
+          <div className="bg-surface-hover flex h-10 w-full max-w-sm items-center justify-center rounded-lg p-1">
+            <span
+              className={mode === 'bulk' ? modeStyles.active : modeStyles.inactive}
+              onClick={() => setMode('bulk')}
+            >
+              Bulk Input
+            </span>
+            <span
+              className={mode === 'single' ? modeStyles.active : modeStyles.inactive}
+              onClick={() => setMode('single')}
+            >
+              Single Entry
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Textarea */}
-      {mode === 'bulk' ? (
-        <div className="flex flex-col gap-2">
-          <label className="text-base leading-normal font-medium text-white">
-            Paste your list of mutations here (one per line)
-          </label>
-          <Textarea
-            {...register('variants')}
-            placeholder={`Q7Z4H8 A126C\nP12235 L100A`}
-            className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary focus:ring-primary/50 min-h-36 resize-y font-mono text-white"
-          />
-          {errors.variants && (
-            <p className="mt-1 text-sm text-red-500">{errors.variants.message}</p>
-          )}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <label className="text-base leading-normal font-medium text-white">
-            Paste your single mutation here
-          </label>
-          <Input
-            {...register('variants')}
-            placeholder={`Q7Z4H8 A126C`}
-            className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary focus:ring-primary/50 resize-y font-mono text-white"
-          />
-          {errors.variants && (
-            <p className="mt-1 text-sm text-red-500">{errors.variants.message}</p>
-          )}
-        </div>
-      )}
+        {/* Textarea */}
+        {mode === 'bulk' ? (
+          <div className="flex flex-col gap-2">
+            <label className="text-base leading-normal font-medium text-white">
+              Paste your list of mutations here (one per line)
+            </label>
+            <Textarea
+              {...register('variants')}
+              placeholder={`Q7Z4H8 A126C\nP12235 L100A`}
+              className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary focus:ring-primary/50 min-h-36 resize-y font-mono text-white"
+            />
+            {errors.variants && (
+              <p className="mt-1 text-sm text-red-500">{errors.variants.message}</p>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <label className="text-base leading-normal font-medium text-white">
+              Paste your single mutation here
+            </label>
+            <Input
+              {...register('variants')}
+              placeholder={`Q7Z4H8 A126C`}
+              className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary focus:ring-primary/50 resize-y font-mono text-white"
+            />
+            {errors.variants && (
+              <p className="mt-1 text-sm text-red-500">{errors.variants.message}</p>
+            )}
+          </div>
+        )}
 
-      {/* Submit */}
-      <div className="flex justify-start">
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="bg-primary hover:bg-primary/90 h-11 rounded-lg px-6 font-bold text-white"
-        >
-          {isPending ? 'Analyzing...' : 'Analyze'}
-        </Button>
-      </div>
-    </form>
+        {/* Submit */}
+        <div className="flex justify-start">
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="bg-primary hover:bg-primary/90 h-11 rounded-lg px-6 font-bold text-white"
+          >
+            {isPending ? 'Analyzing...' : 'Analyze'}
+          </Button>
+        </div>
+      </form>
+
+      <RecentSearches
+        history={history}
+        onReuse={handleReuse}
+        onRemove={removeEntry}
+        onClear={clearHistory}
+      />
+    </div>
   )
 }
