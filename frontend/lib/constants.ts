@@ -25,6 +25,21 @@ export const faqs = [
       'The results table shows the matched variant ID, protein ID, residue position, AlphaMissense prediction, ESM1b pathogenicity, stability prediction, interface/pocket annotations, and mechanistic label.',
   },
   {
+    question: 'What are the distribution charts?',
+    answer:
+      'When results load, three charts summarise the batch: an AlphaMissense classification breakdown, a mechanistic label distribution, and a pathogenicity score histogram. These help interpret the overall profile of submitted variants at a glance.',
+  },
+  {
+    question: 'How do I compare two variants?',
+    answer:
+      'On the results page, check the checkbox on two rows in the table. A Compare button will appear — clicking it opens a dedicated comparison page showing all prediction scores side by side for both variants.',
+  },
+  {
+    question: 'What is the recent searches feature?',
+    answer:
+      'The home page saves your last 5 submissions locally in your browser. You can click any entry to re-run that search instantly. Recent searches are stored in localStorage and persist across sessions but are never sent to the server.',
+  },
+  {
     question: 'How does the structure viewer work?',
     answer:
       'When you select a variant in the results table, the app loads the structural model for the corresponding protein and highlights the selected residue position where possible.',
@@ -37,7 +52,7 @@ export const faqs = [
   {
     question: 'Can I export the results?',
     answer:
-      'Yes. The results page is designed to support CSV export of the currently returned variants.',
+      'Yes. The results page supports CSV export of all matched variants including all prediction fields.',
   },
   {
     question: 'Does this app cover all human proteins?',

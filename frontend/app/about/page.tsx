@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, Database, FlaskConical, Search, Box } from 'lucide-react'
+import { ArrowLeft, Database, FlaskConical, Search, Box, BarChart2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function AboutPage() {
@@ -90,6 +90,20 @@ export default function AboutPage() {
               position and 3D protein context.
             </p>
           </div>
+
+          <div className="border-border-dark bg-surface rounded-2xl border p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="bg-primary/10 text-primary rounded-xl p-2">
+                <BarChart2 className="size-5" />
+              </div>
+              <h2 className="text-lg font-bold text-white">Analysis tools</h2>
+            </div>
+            <p className="text-text-muted leading-7">
+              Results include distribution charts summarising pathogenicity classifications and
+              mechanistic labels across submitted variants. Individual variants can be compared side
+              by side, and recent searches are saved locally for quick access.
+            </p>
+          </div>
         </section>
 
         <section className="border-border-dark bg-surface rounded-2xl border p-6 sm:p-8">
@@ -112,10 +126,10 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="rounded-xl bg-slate-900/40 p-4">
-              <p className="text-primary mb-2 text-sm font-semibold">3. Inspect details</p>
+              <p className="text-primary mb-2 text-sm font-semibold">3. Inspect and compare</p>
               <p className="text-text-muted text-sm leading-6">
-                Select a row to inspect its scores, labels, and structural context in the right-hand
-                panel.
+                Select a row to inspect scores and structural context. Use the comparison tool to
+                analyse two variants side by side.
               </p>
             </div>
           </div>
