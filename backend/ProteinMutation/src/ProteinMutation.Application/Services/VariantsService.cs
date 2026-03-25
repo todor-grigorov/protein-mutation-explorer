@@ -22,7 +22,12 @@ namespace ProteinMutation.Application.Services
             string variantId,
             CancellationToken cancellationToken = default)
         {
-            var id = ProteinVariantId.Parse(variantId);
+            // Normalize space-separated format to slash format
+            var normalized = variantId.Contains('/')
+                ? variantId
+                : variantId.Replace(' ', '/');
+
+            var id = ProteinVariantId.Parse(normalized);
 
             var variant = await _repository.GetByVariantIdAsync(id, cancellationToken);
 
@@ -75,9 +80,9 @@ namespace ProteinMutation.Application.Services
             var invalid = new List<InvalidVariantEntry>();
 
             // Step 1 — parse and validate each line
+            // Step 1 — parse and validate each line
             foreach (var line in lines)
             {
-                // Normalize space-separated format to slash format
                 var normalized = line.Contains('/')
                     ? line
                     : line.Replace(' ', '/');
@@ -90,9 +95,15 @@ namespace ProteinMutation.Application.Services
                         Reason: "Invalid format. Expected: Q7Z4H8/A126C or Q7Z4H8 A126C"));
             }
 
+            // Deduplicate valid IDs before repository call
+            var uniqueIds = validIds
+                .GroupBy(id => id.RawValue)
+                .Select(g => g.First())
+                .ToList();
+
             // Step 2 — bulk lookup valid IDs in one DB round trip
-            var found = validIds.Count > 0
-                ? await _repository.GetByVariantIdsAsync(validIds, cancellationToken)
+            var found = uniqueIds.Count > 0
+                ? await _repository.GetByVariantIdsAsync(uniqueIds, cancellationToken)
                 : [];
 
             // Step 3 — determine which valid IDs had no match in the DB
@@ -100,7 +111,7 @@ namespace ProteinMutation.Application.Services
                 .Select(v => v.VariantId.RawValue)
                 .ToHashSet();
 
-            var notFound = validIds
+            var notFound = uniqueIds
                 .Where(id => !foundRawIds.Contains(id.RawValue))
                 .Select(id => id.RawValue)
                 .ToList();

@@ -5,4 +5,7 @@
     <Project Path="src/ProteinMutation.Domain/ProteinMutation.Domain.csproj" />
     <Project Path="src/ProteinMutation.Infrastructure/ProteinMutation.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ProteinMutation.UnitTests/ProteinMutation.UnitTests.csproj" />
+  </Folder>
 </Solution>
