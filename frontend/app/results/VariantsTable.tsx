@@ -11,11 +11,10 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Download, Search, ChevronLeft, ChevronRight } from 'lucide-react'
-import { exportVariantsToCsv } from '@/lib/export'
 import type { ProteinVariantResponse } from '@/types/api'
+import Toolbar from '@/components/variants-table/Toolbar'
+import Pagination from '@/components/variants-table/Pagination'
+import VariantsGrid from '@/components/variants-table/VariantsGrid'
 
 interface VariantsTableProps {
   variants: ProteinVariantResponse[]
@@ -153,117 +152,20 @@ export function VariantsTable({
 
   return (
     <div className="flex h-full flex-col gap-4">
-      {/* Toolbar */}
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="text-text-muted absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-          <Input
-            placeholder="Filter mutations..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="bg-surface border-border-dark placeholder:text-text-muted focus:border-primary h-12 pl-9 text-white"
-          />
-        </div>
-        <Button
-          onClick={() => exportVariantsToCsv(variants)}
-          className="bg-primary hover:bg-primary/90 h-12 gap-2 px-4 font-bold text-white"
-        >
-          <Download className="size-4" />
-          Export CSV
-        </Button>
-      </div>
-
-      {/* Table */}
-      <div className="border-border-dark h-full overflow-hidden rounded-lg border">
-        <div className="h-full overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="bg-surface">
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      onClick={header.column.getToggleSortingHandler()}
-                      className="hover:text-primary cursor-pointer px-4 py-3 text-sm leading-normal font-medium whitespace-nowrap text-white transition-colors select-none"
-                    >
-                      <div className="flex items-center gap-1">
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {header.column.getIsSorted() === 'asc' && ' ↑'}
-                        {header.column.getIsSorted() === 'desc' && ' ↓'}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="text-text-muted px-4 py-8 text-center text-sm"
-                  >
-                    No variants found.
-                  </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    onClick={() => onVariantSelect(row.original)}
-                    className={`border-border-dark cursor-pointer border-t transition-colors ${
-                      selectedVariantId === row.original.variantId
-                        ? 'bg-primary/20'
-                        : 'hover:bg-surface-hover'
-                    }`}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="h-[60px] px-4 py-2 text-sm leading-normal font-normal"
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <p className="text-text-muted text-xs">
-          {totalFiltered === 0
-            ? 'No results'
-            : `Showing ${firstRow}–${lastRow} of ${totalFiltered} variants`}
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="border-border-dark text-text-muted h-8 w-8 p-0 hover:text-white disabled:opacity-30"
-          >
-            <ChevronLeft className="size-4" />
-          </Button>
-          <span className="text-text-muted text-xs">
-            Page {pageIndex + 1} of {table.getPageCount()}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="border-border-dark text-text-muted h-8 w-8 p-0 hover:text-white disabled:opacity-30"
-          >
-            <ChevronRight className="size-4" />
-          </Button>
-        </div>
-      </div>
+      <Toolbar globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} variants={variants} />
+      <VariantsGrid
+        table={table}
+        selectedVariantId={selectedVariantId}
+        columns={columns}
+        onVariantSelect={onVariantSelect}
+      />
+      <Pagination
+        table={table}
+        pageIndex={pageIndex}
+        firstRow={firstRow}
+        lastRow={lastRow}
+        totalFiltered={totalFiltered}
+      />
     </div>
   )
 }
