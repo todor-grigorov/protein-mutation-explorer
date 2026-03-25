@@ -4,15 +4,16 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useVariantsBatch } from '@/hooks/useVariantsBatch'
-import { VariantsTable } from '@/app/results/VariantsTable'
-import { BatchSummaryBanner } from '@/app/results/BatchSummaryBanner'
-import { ProteinInfoPanel } from '@/app/results/ProteinInfoPanel'
+import { VariantsTable } from '@/components/results/VariantsTable'
+import { BatchSummaryBanner } from '@/components/results/BatchSummaryBanner'
+import { ProteinInfoPanel } from '@/components/results/ProteinInfoPanel'
+import { DistributionCharts } from '@/components/results/DistributionCharts'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import type { BatchSubmissionResponse, ProteinVariantResponse } from '@/types/api'
 
 const MolstarViewer = dynamic(
-  () => import('@/app/results/MolstarViewer').then((mod) => mod.MolstarViewer),
+  () => import('@/components/results/MolstarViewer').then((mod) => mod.MolstarViewer),
   {
     ssr: false,
     loading: () => (
@@ -103,6 +104,12 @@ function ResultsContent() {
       </div>
 
       <BatchSummaryBanner notFound={results.notFound} invalid={results.invalid} />
+
+      {results.found.length > 0 && (
+        <div className="mt-6">
+          <DistributionCharts variants={results.found} />
+        </div>
+      )}
 
       {results.found.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20">
