@@ -6,14 +6,14 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   flexRender,
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Download, Search } from 'lucide-react'
+import { Download, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { exportVariantsToCsv } from '@/lib/export'
 import type { ProteinVariantResponse } from '@/types/api'
 
@@ -57,6 +57,8 @@ function MechanisticBadge({ value }: { value: string }) {
     </span>
   )
 }
+
+const PAGE_SIZE = 10
 
 export function VariantsTable({
   variants,
@@ -129,12 +131,25 @@ export function VariantsTable({
     data: variants,
     columns,
     state: { sorting, globalFilter },
+    initialState: {
+      pagination: {
+        pageSize: PAGE_SIZE,
+        pageIndex: 0,
+      },
+    },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    autoResetPageIndex: true, // reset to page 1 when filter changes
   })
+
+  const { pageIndex, pageSize } = table.getState().pagination
+  const totalFiltered = table.getFilteredRowModel().rows.length
+  const firstRow = totalFiltered === 0 ? 0 : pageIndex * pageSize + 1
+  const lastRow = Math.min((pageIndex + 1) * pageSize, totalFiltered)
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -159,8 +174,8 @@ export function VariantsTable({
       </div>
 
       {/* Table */}
-      <div className="border-border-dark h-full overflow-hidden rounded-lg border">
-        <div className="h-full overflow-x-auto">
+      <div className="border-border-dark overflow-hidden rounded-lg border">
+        <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -218,10 +233,37 @@ export function VariantsTable({
         </div>
       </div>
 
-      {/* Row count */}
-      <p className="text-text-muted text-xs">
-        Showing {table.getFilteredRowModel().rows.length} of {variants.length} variants
-      </p>
+      {/* Pagination */}
+      <div className="flex items-center justify-between">
+        <p className="text-text-muted text-xs">
+          {totalFiltered === 0
+            ? 'No results'
+            : `Showing ${firstRow}–${lastRow} of ${totalFiltered} variants`}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="border-border-dark text-text-muted h-8 w-8 p-0 hover:text-white disabled:opacity-30"
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <span className="text-text-muted text-xs">
+            Page {pageIndex + 1} of {table.getPageCount()}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="border-border-dark text-text-muted h-8 w-8 p-0 hover:text-white disabled:opacity-30"
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
