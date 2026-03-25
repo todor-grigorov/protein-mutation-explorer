@@ -1,5 +1,6 @@
 'use client'
 
+import { GitCompare } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Download, Search } from 'lucide-react'
 import { Input } from '../ui/input'
@@ -8,11 +9,19 @@ import { exportVariantsToCsv } from '@/lib/export'
 
 interface ToolbarProps {
   globalFilter: string
-  setGlobalFilter: (value: string) => void
   variants: ProteinVariantResponse[]
+  compareSelection: string[]
+  setGlobalFilter: (value: string) => void
+  handleCompare: () => void
 }
 
-const Toolbar = ({ globalFilter, setGlobalFilter, variants }: ToolbarProps) => {
+const Toolbar = ({
+  globalFilter,
+  setGlobalFilter,
+  variants,
+  compareSelection,
+  handleCompare,
+}: ToolbarProps) => {
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       <div className="relative flex-1">
@@ -30,6 +39,14 @@ const Toolbar = ({ globalFilter, setGlobalFilter, variants }: ToolbarProps) => {
       >
         <Download className="size-4" />
         Export CSV
+      </Button>
+      <Button
+        onClick={handleCompare}
+        disabled={compareSelection.length !== 2}
+        className="bg-surface-hover hover:bg-border-dark border-border-dark h-12 gap-2 border px-4 font-bold text-white"
+      >
+        <GitCompare className="size-4" />
+        Compare
       </Button>
     </div>
   )

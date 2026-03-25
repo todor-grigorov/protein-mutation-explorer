@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  flexRender,
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
@@ -64,11 +64,47 @@ export function VariantsTable({
   selectedVariantId,
   onVariantSelect,
 }: VariantsTableProps) {
+  const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
+  const [compareSelection, setCompareSelection] = useState<string[]>([])
+
+  const toggleCompareSelection = (variantId: string) => {
+    setCompareSelection((prev) =>
+      prev.includes(variantId)
+        ? prev.filter((id) => id !== variantId)
+        : prev.length < 2
+          ? [...prev, variantId]
+          : prev
+    )
+  }
+
+  const handleCompare = () => {
+    if (compareSelection.length !== 2) return
+    const [a, b] = compareSelection
+    router.push(`/compare?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`)
+  }
 
   const columns = useMemo<ColumnDef<ProteinVariantResponse>[]>(
     () => [
+      {
+        id: 'compare',
+        header: '',
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={compareSelection.includes(row.original.variantId)}
+            onChange={(e) => {
+              e.stopPropagation()
+              toggleCompareSelection(row.original.variantId)
+            }}
+            disabled={
+              !compareSelection.includes(row.original.variantId) && compareSelection.length >= 2
+            }
+            className="accent-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-30"
+          />
+        ),
+      },
       {
         accessorKey: 'variantId',
         header: 'Mutation',
@@ -123,7 +159,7 @@ export function VariantsTable({
         ),
       },
     ],
-    []
+    [compareSelection]
   )
 
   const table = useReactTable({
@@ -142,7 +178,7 @@ export function VariantsTable({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    autoResetPageIndex: true, // reset to page 1 when filter changes
+    autoResetPageIndex: false,
   })
 
   const { pageIndex, pageSize } = table.getState().pagination
@@ -150,9 +186,19 @@ export function VariantsTable({
   const firstRow = totalFiltered === 0 ? 0 : pageIndex * pageSize + 1
   const lastRow = Math.min((pageIndex + 1) * pageSize, totalFiltered)
 
+  useEffect(() => {
+    table.setPageIndex(0)
+  }, [globalFilter])
+
   return (
     <div className="flex h-full flex-col gap-4">
-      <Toolbar globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} variants={variants} />
+      <Toolbar
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+        variants={variants}
+        compareSelection={compareSelection}
+        handleCompare={handleCompare}
+      />
       <VariantsGrid
         table={table}
         selectedVariantId={selectedVariantId}
