@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: ./backend/ProteinMutation
+      dockerfile: Dockerfile
+    container_name: mutation-impact-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Database__ConnectionString=Data Source=/app/database/protein_mutation.db
+      - Database__TsvFilePath=/app/data/missense_human_subset.tsv
+    volumes:
+      - db-data:/app/database
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8080
+    container_name: mutation-impact-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:

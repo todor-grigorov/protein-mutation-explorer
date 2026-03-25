@@ -10,6 +10,11 @@ var dbOptions = builder.Configuration
     .GetSection(DatabaseOptions.SectionName)
     .Get<DatabaseOptions>()!;
 
+var structuralModelsOptions = builder.Configuration
+    .GetSection(StructuralModelsOptions.SectionName)
+    .Get<StructuralModelsOptions>()!;
+
+builder.Services.AddSingleton(structuralModelsOptions);
 builder.Services.AddSingleton(dbOptions);
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
@@ -20,6 +25,7 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.ConfigureServiceManager();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -46,6 +52,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
+app.MapHealthChecks("/health");
 
 app.UseAuthorization();
 

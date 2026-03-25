@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProteinMutation.Infrastructure.Options;
 
 namespace ProteinMutation.Api.Controllers
 {
@@ -6,6 +7,7 @@ namespace ProteinMutation.Api.Controllers
     [Route("api/[controller]")]
     public sealed class StructuresController : ControllerBase
     {
+        private readonly StructuralModelsOptions _options;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<StructuresController> _logger;
 
@@ -18,9 +20,11 @@ namespace ProteinMutation.Api.Controllers
         };
 
         public StructuresController(
+            StructuralModelsOptions options,
             IWebHostEnvironment environment,
             ILogger<StructuresController> logger)
         {
+            _options = options;
             _environment = environment;
             _logger = logger;
         }
@@ -34,13 +38,7 @@ namespace ProteinMutation.Api.Controllers
             if (!PdbFiles.TryGetValue(normalizedId, out var fileName))
                 return NotFound($"No structure available for protein '{proteinId}'.");
 
-            var filePath = Path.Combine(
-                _environment.ContentRootPath,
-                "..",
-                "..",
-                "data",
-                "structural_models",
-                fileName);
+            var filePath = Path.Combine(_options.Path, fileName);
 
             if (!System.IO.File.Exists(filePath))
             {

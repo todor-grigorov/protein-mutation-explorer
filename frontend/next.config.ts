@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   // Required for Molstar — `canvas` is a Node.js package and should stay external on the server
   serverExternalPackages: ['canvas'],
   transpilePackages: ['molstar'],
