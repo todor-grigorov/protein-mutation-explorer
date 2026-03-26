@@ -15,7 +15,7 @@ publish/
 *.nupkg
 *.snupkg
 .nuget/
-nuget.config
+# nuget.config
 packages/
 project.lock.json
 project.fragment.lock.json
